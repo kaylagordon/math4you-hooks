@@ -1,7 +1,7 @@
 ## MATH4YOU
 The original repo for this project is [here](https://github.com/kaylaewood/math4you).
-This is an experimental project for me to practice implementing hooks.
+This is an experimental project for practicing hooks.
 
-Components with hooks: MathCard & Header
+Components that have been refactored with hooks: **MathCard** & **Header**
 
 
