@@ -1,67 +1,54 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import './MathCard.scss';
 import { problemSets } from '../../problemSets';
 import { connect } from 'react-redux';
 import { getAnswer } from '../../apiCalls/apiCalls';
 import { increaseCorrect, increaseIncorrect } from '../../actions';
 
-export class MathCard extends Component {
-  constructor({ currentProblemSet }) {
-    super({ currentProblemSet });
-    this.state= {
-      expression: problemSets[currentProblemSet](),
-      answer: '',
-      evaluatedTo: 'waiting'
-    };
+export const MathCard = ({ currentProblemSet, increaseCorrect, increaseIncorrect }) => {
+  const [ expression, setExpression ] = useState(problemSets[currentProblemSet]());
+  const [ answer, setAnswer ] = useState('');
+  const [ evaluatedTo, setEvaluatedTo ] = useState('waiting');
+
+
+  const updateAnswer = event => {
+    let answer = event.target.value
+    setAnswer(() => answer)
   };
 
-  updateAnswer = event => {
-    this.setState({
-      answer: event.target.value
-    });
-  };
-
-  checkAnswer = () => {
-    getAnswer(this.props.currentProblemSet, this.state.expression)
+  const checkAnswer = () => {
+    getAnswer(currentProblemSet, expression)
     .then(data => {
-      if(data.result.split(' ').join('') === this.state.answer) {
-        this.props.increaseCorrect();
-        this.setState({
-          evaluatedTo: 'correct'
-        })
-        setTimeout(this.getNewCard, 2500)
+      if(data.result.split(' ').join('') === answer) {
+        increaseCorrect();
+        setEvaluatedTo(() => 'correct')
+        setTimeout(getNewCard, 2500)
       } else {
-        this.props.increaseIncorrect();
-        this.setState({
-          evaluatedTo: 'incorrect'
-        })
+        increaseIncorrect();
+        setEvaluatedTo(() => 'incorrect')
       }
     })
   }
 
-  getNewCard = () => {
-    this.setState({
-      expression: problemSets[this.props.currentProblemSet](),
-      answer: '',
-      evaluatedTo: 'waiting'
-    })
+  const getNewCard = () => {
+    setExpression(() => problemSets[currentProblemSet]());
+    setAnswer(() => '');
+    setEvaluatedTo(() => 'waiting');
   }
 
-  render() {
-    return (
-      <div className={`mathCard ${this.state.evaluatedTo}`}>
-        <p className='expression-text'>{this.state.expression}</p>
-        <input
-          type='text'
-          value={this.state.answer}
-          onChange={this.updateAnswer}
-        />
-        <button
-          onClick={this.checkAnswer}
-        >CHECK</button>
-      </div>
-    );
-  };
+  return (
+    <div className={`mathCard ${evaluatedTo}`}>
+      <p className='expression-text'>{expression}</p>
+      <input
+        type='text'
+        value={answer}
+        onChange={(event) => updateAnswer(event)}
+      />
+      <button
+        onClick={checkAnswer}
+      >CHECK</button>
+    </div>
+  );
 };
 
 export const mapStateToProps = state => ({
